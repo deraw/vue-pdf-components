@@ -1,36 +1,22 @@
-interface Modifiers {
-	immediate: boolean;
-}
+import { DirectiveOptions } from 'vue';
 
-interface Binding {
-	value: () => void;
-	modifiers: Modifiers;
-}
+import throttle from '../utils/throttle';
 
-function throttle(fn: () => void, delay: number) {
-	let lastCall = 0;
-
-	return function() {
-		const now = (new Date).getTime();
-
-		if (now - lastCall < delay) {
-			return;
-		}
-
-		lastCall = now;
-
-		return fn();
-	}
-}
-
-const scrollDirective: any = {
-	inserted(el: HTMLElement, binding: Binding) {
+// Scroll directive
+// Provide callback when the window
+// or a specifically defined element are scrolled
+const scrollDirective: DirectiveOptions = {
+	inserted(el, binding) {
+		// v-pdf-scroll="callback"
 		const callback = binding.value;
 
+		// Immediate modifier
+		// v-pdf-scroll.immediate="callback"
 		if (binding.modifiers.immediate) {
 			callback();
 		}
 
+		// Throttle scroll event by 300ms
 		const throttledScroll = throttle(callback, 300);
 		el.addEventListener('scroll', throttledScroll, true);
 	}

@@ -1,6 +1,6 @@
 <template>
 	<div
-		v-scroll.immediate="updateScrollBounds"
+		v-pdf-scroll.immediate="updateScrollBounds"
 		class="scrolling-document"
 	>
 		<ScrollingPage
@@ -30,7 +30,7 @@
 		</ScrollingPage>
 
 		<div
-			v-visible="fetchPages"
+			v-pdf-visible="fetchPages"
 			class="observer"
 		/>
 	</div>

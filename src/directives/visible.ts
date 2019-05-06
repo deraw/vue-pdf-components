@@ -1,24 +1,29 @@
-import { VNode } from 'vue';
+import { DirectiveOptions, VNode } from 'vue';
+
+declare global {
+	interface Window {
+		IntersectionObserver?: IntersectionObserver;
+	}
+}
 
 interface Modifiers {
-	once?: boolean;
+	[key: string]: boolean
 }
 
-interface Binding {
-	value: () => void;
-	oldValue?: () => void;
-	modifiers: Modifiers;
-}
-
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
 const instances = new WeakMap();
 
 function createObserver(el: HTMLElement, vnode: VNode, modifiers: Modifiers, callback: () => void) {
 	const observer = new IntersectionObserver(entries => {
 		const entry = entries[0];
 
+		// If the element if intersecting
 		if (entry.isIntersecting) {
+			// Fire the callback
 			callback();
 
+			// If the modifier once is present,
+			// disconnect the observer
 			if (modifiers.once) {
 				disconnectObserver(observer);
 			}
@@ -39,34 +44,54 @@ function disconnectObserver(observer: IntersectionObserver) {
 	}
 }
 
-const visible: any = {
-	bind(el: HTMLElement, { value, modifiers }: Binding, vnode: VNode) {
-		const enhanced = (window as any).IntersectionObserver !== 'undefined';
+// Visible directive
+// Provide callback when an element is visible
 
-		if (enhanced) {
-			const observer = createObserver(el, vnode, modifiers, () => {
-				const callback = value;
+// Using IntersectionObserver
+// (see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
-				if (typeof callback === 'function') {
-					callback();
-				}
-			});
-
-			instances.set(el, { observer });
+// v-pdf-visible="callback"
+const visible: DirectiveOptions = {
+	bind(el, { value, modifiers }, vnode) {
+		// Don't do anything is IntersectionObserver is not supported
+		if (window.IntersectionObserver === undefined) {
+			return;
 		}
+
+		// Create the observer
+		const observer = createObserver(el, vnode, modifiers, () => {
+			const callback = value;
+
+			if (typeof callback === 'function') {
+				callback();
+			}
+		});
+
+		instances.set(el, { observer });
 	},
-	update(el: HTMLElement, { value, oldValue }: Binding, vnode: VNode) {
+	update(el, { value, oldValue }, vnode, oldVnode) {
+		// If the value hasn't been updated,
+		// don't do anything
 		if (value === oldValue) {
 			return;
 		}
 
+		// Disconnect previous observer
 		const { observer } = instances.get(el);
 		disconnectObserver(observer);
 
-		this.bind(el, { value, modifiers: {} }, vnode);
+		// Type safety: bind() is optional, make sure it's present
+		if (typeof this.bind !== 'function') {
+			return;
+		}
+
+		// Call bind() with updated parameters
+		// (this will create a new observer)
+		this.bind(el, { value, modifiers: {} } as any, vnode, oldVnode);
 	},
-	unbind(el: HTMLElement) {
+	unbind(el) {
 		if (instances.has(el)) {
+			// Disconnect & delete the observer
 			const { observer } = instances.get(el);
 			disconnectObserver(observer);
 			instances.delete(el);

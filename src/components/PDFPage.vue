@@ -5,7 +5,7 @@
 	>
 		<canvas
 			ref="canvas"
-			v-visible.once="renderPage"
+			v-pdf-visible.once="renderPage"
 			v-bind="canvasAttrs"
 		/>
 
