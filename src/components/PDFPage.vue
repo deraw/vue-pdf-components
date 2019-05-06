@@ -1,6 +1,6 @@
 <template>
 	<div
-		ref="page"
+		ref="pdf-page"
 		v-bind="canvasAttrs"
 	>
 		<canvas
@@ -11,7 +11,7 @@
 
 		<div
 			ref="textLayer"
-			class="text-layer"
+			class="pdf-text-layer"
 		/>
 	</div>
 </template>
@@ -64,7 +64,7 @@
 				width: width * 2,
 				height: height * 2,
 				style: `width: ${width}px; height: ${height}px;`,
-				class: 'pdf-page box-shadow'
+				class: 'pdf-page'
 			};
 		}
 
@@ -187,20 +187,19 @@
 	}
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 	.pdf-page {
 		position: relative;
 		display: block;
 		max-width: none;
 		margin: 0 auto;
 		background: #fff;
-		box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11), 0 5px 15px 0 rgba(0, 0, 0, 0.08);
 	}
 
-	.text-layer {
+	.pdf-text-layer {
 		position: absolute;
 		left: 0;
-		top: 0;
+		top: .15rem;
 		right: 0;
 		bottom: 0;
 		overflow: hidden;

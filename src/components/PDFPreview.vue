@@ -64,20 +64,15 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
 	.pdf-preview {
 		position: absolute;
 		overflow: auto;
 		z-index: 1;
-		padding: 2em 0;
 		top: 0;
 		left: 0;
 		right: 0;
 		bottom: 0;
-	}
-
-	.scrolling-page {
-		margin-bottom: 1em;
 	}
 
 	@media print {

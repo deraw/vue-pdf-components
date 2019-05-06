@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-pdf-scroll.immediate="updateScrollBounds"
-		class="scrolling-document"
+		class="pdf-scrolling-document"
 	>
 		<ScrollingPage
 			v-for="page in pages"
@@ -17,7 +17,7 @@
 				focusedPage,
 				enablePageJump
 			}"
-			class="scrolling-page"
+			class="pdf-scrolling-page"
 			@page-jump="onPageJump"
 		>
 			<slot
@@ -31,7 +31,7 @@
 
 		<div
 			v-pdf-visible="fetchPages"
-			class="observer"
+			class="pdf-observer"
 		/>
 	</div>
 </template>
@@ -70,6 +70,7 @@
 		fetchPages(currentPage: number) {
 			this.$emit('pages-fetch', currentPage);
 		}
+
 		onPageJump(scrollTop: number) {
 			this.$emit('page-jump', scrollTop);
 		}
@@ -104,8 +105,8 @@
 	}
 </script>
 
-<style lang="scss" scoped>
-	.scrolling-page {
+<style lang="scss">
+	.pdf-scrolling-page {
 		position: relative;
 	}
 </style>

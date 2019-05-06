@@ -143,7 +143,7 @@
 	}
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 	.pdf-document {
 		position: absolute;
 		overflow: auto;
@@ -152,13 +152,6 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
-		background: #525f69;
-
-		/deep/ {
-			> div + div {
-				margin-top: 50px;
-			}
-		}
 	}
 
 	@media print {

@@ -1,9 +1,9 @@
-# Vue PDF Viewer
+# Vue PDF Components
 
-Display PDFs with Vue components, using [PDF.js](https://mozilla.github.io/pdf.js/) under the hood.
+Display PDFs with Vue.js components, using [PDF.js](https://mozilla.github.io/pdf.js/) under the hood.
 
 ## Installation
 
 ```sh
-yarn add -D vue-pdf-viewer
+yarn add vue-pdf-components
 ```

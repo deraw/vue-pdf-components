@@ -6,7 +6,6 @@
 		<template v-slot:preview="{ pages }">
 			<PDFPreview
 				v-show="isPreviewEnabled"
-				class="pdf-viewer__preview"
 				v-bind="{
 					pages,
 					scale,

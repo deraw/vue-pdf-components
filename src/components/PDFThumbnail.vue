@@ -10,19 +10,18 @@
 		<img
 			v-if="src"
 			:src="src"
-			class="box-shadow"
 		>
 
 		<div
 			v-else
-			class="placeholder box-shadow"
+			class="pdf-placeholder"
 		>
-			<div class="content">
-				Loading
+			<div class="pdf-placeholder-content">
+				{{ loadingLabel }}
 			</div>
 		</div>
 
-		<span class="page-number">
+		<span class="pdf-page-number">
 			{{ pageNumber }}
 		</span>
 	</div>
@@ -46,6 +45,7 @@
 		@Prop(Object) readonly page!: PDFPageProxy;
 		@Prop(Number) readonly scale!: number;
 		@Prop(Boolean) readonly isPageFocused!: boolean;
+		@Prop({ type: String, default: 'Loading' }) readonly loadingLabel!: string;
 
 		get viewport() {
 			return this.page.getViewport(1.0);
@@ -145,10 +145,9 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
 	.pdf-thumbnail {
 		cursor: pointer;
-		margin: 0 auto;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -157,42 +156,27 @@
 		width: 100%;
 	}
 
-	img,
-	.placeholder {
-		border: 7px solid transparent;
-		border-radius: 5px;
-		width: 65%;
-	}
-
-	.pdf-thumbnail.focused img {
-		border-color: rgba(68, 204, 139, 0.65);
-	}
-
-	.placeholder {
-		background: white;
+	.pdf-placeholder {
+		width: 100%;
+		background: #fff;
 		background-clip: content-box;
 		position: relative;
-	}
 
-	.placeholder::before {
-		content: '';
-		display: block;
-		padding-top: 75%;
-	}
+		&::before {
+			content: '';
+			display: block;
+			padding-top: 150%;
+		}
 
-	.placeholder .content {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-	}
-
-	.page-number {
-		color: white;
-		font-weight: bold;
+		.pdf-placeholder-content {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
 	}
 </style>
