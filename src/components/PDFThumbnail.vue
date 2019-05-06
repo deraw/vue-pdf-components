@@ -32,7 +32,13 @@
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	import { PDFPageProxy, PDFRenderTask } from 'pdfjs-dist';
 
-	@Component
+	import pdfVisible from '../directives/visible';
+
+	@Component({
+		directives: {
+			pdfVisible
+		}
+	})
 	export default class PDFThumbnail extends Vue {
 		src: string | null = null;
 		renderTask?: PDFRenderTask;

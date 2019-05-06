@@ -20,9 +20,14 @@
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	import { PDFPageProxy, PDFRenderTask, PDFLoadingTask, PDFPageViewport } from 'pdfjs-dist';
 
+	import pdfVisible from '../directives/visible';
 	import { PIXEL_RATIO } from '../utils/const';
 
-	@Component
+	@Component({
+		directives: {
+			pdfVisible
+		}
+	})
 	export default class PDFPage extends Vue {
 		renderTask?: PDFRenderTask;
 		viewport: any = null;

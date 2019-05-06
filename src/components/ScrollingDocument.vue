@@ -41,9 +41,16 @@
 
 	import ScrollingPage from './ScrollingPage.vue';
 
+	import pdfVisible from '../directives/visible';
+	import pdfScroll from '../directives/scroll';
+
 	@Component({
 		components: {
 			ScrollingPage
+		},
+		directives: {
+			pdfVisible,
+			pdfScroll
 		}
 	})
 	export default class ScrollingDocument extends Vue {
