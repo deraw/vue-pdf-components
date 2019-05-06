@@ -1,6 +1,11 @@
 <template>
 	<div>
 		<slot
+			name="preview"
+			v-bind="{ pages }"
+		/>
+
+		<slot
 			name="document"
 			v-bind="{ pages }"
 		/>

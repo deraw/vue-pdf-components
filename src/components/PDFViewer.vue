@@ -1,5 +1,22 @@
 <template>
-	<PDFData :url="url">
+	<PDFData
+		:url="url"
+		@page-focus="updateCurrentPage"
+	>
+		<template v-slot:preview="{ pages }">
+			<PDFPreview
+				v-show="isPreviewEnabled"
+				class="pdf-viewer__preview"
+				v-bind="{
+					pages,
+					scale,
+					currentPage,
+					pageCount,
+					isPreviewEnabled
+				}"
+			/>
+		</template>
+
 		<template v-slot:document="{ pages }">
 			<PDFDocument
 				v-bind="{
@@ -21,11 +38,13 @@
 	import { Component, Vue } from 'vue-property-decorator';
 
 	import PDFDocument from './PDFDocument.vue';
+	import PDFPreview from './PDFPreview.vue';
 	import PDFData from './PDFData.vue';
 
 	@Component({
 		components: {
 			PDFDocument,
+			PDFPreview,
 			PDFData
 		}
 	})
@@ -35,9 +54,9 @@
 		scale = 0;
 		optimalScale = 0;
 		fit = 'auto';
-		currentPage = null;
-		pageCount = null;
-		isPreviewEnabled = false;
+		currentPage = 0;
+		pageCount = 0;
+		isPreviewEnabled = true;
 
 		floor(value: number, precision: number) {
 			const multiplier = Math.pow(10, precision || 0);
@@ -52,6 +71,10 @@
 			}
 
 			this.scale = roundedScale;
+		}
+
+		updateCurrentPage(pageNumber: number) {
+			this.currentPage = pageNumber;
 		}
 	}
 </script>

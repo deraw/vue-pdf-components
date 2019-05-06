@@ -11,6 +11,7 @@
 			currentPage
 		}"
 		:enable-page-jump="true"
+		:class="{ 'preview-enabled': isPreviewEnabled }"
 		class="pdf-document"
 		@page-jump="onPageJump"
 		@pages-fetch="onPagesFetch"

@@ -37,4 +37,15 @@
 	body {
 		overflow: hidden;
 	}
+
+	.pdf-viewer__preview {
+		display: block;
+		width: 15%;
+		right: 85%;
+	}
+
+	.main .pdf-document.preview-enabled {
+		width: 85%;
+		left: 15%;
+	}
 </style>
