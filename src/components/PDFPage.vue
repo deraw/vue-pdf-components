@@ -212,22 +212,20 @@
 		bottom: 0;
 		overflow: hidden;
 
-		/deep/ {
-			div {
-				color: transparent;
-				position: absolute;
-				white-space: pre;
-				cursor: text;
-				transform-origin: left bottom;
-			}
+		div {
+			color: transparent;
+			position: absolute;
+			white-space: pre;
+			cursor: text;
+			transform-origin: left bottom;
+		}
 
-			::selection {
-				background: rgba(179, 212, 252, .3);
-			}
+		::selection {
+			background: rgba(179, 212, 252, .3);
+		}
 
-			::-moz-selection {
-				background: rgba(0, 0, 255, .3);
-			}
+		::-moz-selection {
+			background: rgba(0, 0, 255, .3);
 		}
 	}
 </style>
