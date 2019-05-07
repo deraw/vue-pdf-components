@@ -40,6 +40,11 @@
 	import PDFPreview from './PDFPreview.vue';
 	import PDFData from './PDFData.vue';
 
+	interface UpdateScaleParameters {
+		scale: number;
+		isOptimal?: boolean;
+	}
+
 	@Component({
 		components: {
 			PDFDocument,
@@ -62,7 +67,7 @@
 			return Math.floor(value * multiplier) / multiplier;
 		}
 
-		updateScale({ scale, isOptimal = false }: any) {
+		updateScale({ scale, isOptimal = false }: UpdateScaleParameters) {
 			const roundedScale = this.floor(scale, 2);
 
 			if (isOptimal) {

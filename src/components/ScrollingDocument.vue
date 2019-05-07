@@ -38,6 +38,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import { PDFPageProxy } from 'pdfjs-dist';
 
 	import ScrollingPage from './ScrollingPage.vue';
 
@@ -58,7 +59,7 @@
 		scrollTop = 0;
 		clientHeight = 0;
 
-		@Prop([Object, Array]) readonly pages!: any;
+		@Prop([Array]) readonly pages!: PDFPageProxy[];
 		@Prop({ type: Boolean, default: false }) readonly enablePageJump!: boolean;
 		@Prop({ type: Number, default: 1 }) readonly currentPage!: number;
 		@Prop({ type: Boolean, default: true }) readonly isParentVisible!: boolean;

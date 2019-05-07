@@ -34,6 +34,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import { PDFPageProxy } from 'pdfjs-dist';
 
 	import { PIXEL_RATIO, VIEWPORT_RATIO } from '../utils/const';
 
@@ -47,7 +48,7 @@
 		}
 	})
 	export default class PDFDocument extends Vue {
-		@Prop() readonly pages!: any;
+		@Prop() readonly pages!: PDFPageProxy[];
 		@Prop({ default: 0 }) readonly pageCount!: number;
 		@Prop({ default: 1.0 }) readonly scale!: number;
 		@Prop(Number) readonly optimalScale!: number;

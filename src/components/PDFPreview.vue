@@ -28,6 +28,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import { PDFPageProxy } from 'pdfjs-dist';
 
 	import ScrollingDocument from './ScrollingDocument.vue';
 	import PDFThumbnail from './PDFThumbnail.vue';
@@ -39,7 +40,7 @@
 		}
 	})
 	export default class PDFPreview extends Vue {
-		@Prop() readonly pages!: any;
+		@Prop() readonly pages!: PDFPageProxy[];
 		@Prop({ type: Number, default: 0 }) readonly pageCount!: number;
 		@Prop({ type: Number, default: 1.0 }) readonly scale!: number;
 		@Prop({ type: Number, default: 1 }) readonly currentPage!: number;
@@ -53,12 +54,12 @@
 			this.$parent.$emit('page-focus', pageNumber);
 		}
 
-		onThumbnailRendered(payload: any) {
+		onThumbnailRendered(payload: PDFPageProxy) {
 			this.$el.dispatchEvent(new Event('scroll'));
 			this.$parent.$emit('thumbnail-rendered', payload);
 		}
 
-		onThumbnailErrored(payload: any) {
+		onThumbnailErrored(payload: string) {
 			this.$parent.$emit('thumbnail-errored', payload);
 		}
 	}

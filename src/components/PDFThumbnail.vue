@@ -79,28 +79,32 @@
 			// PDFPageProxy#render
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			this.renderTask = this.page.render(renderContext);
-			(this.renderTask as any)
-				.then(() => {
-					this.src = canvas.toDataURL();
-					// Zeroing the width and height causes Firefox to release graphics
-					// resources immediately, which can greatly reduce memory consumption.
-					canvas.width = 0;
-					canvas.height = 0;
-				})
-				.then(() => {
-					this.$emit('thumbnail-rendered', {
-						page: this.page,
-						text: `Rendered thumbnail ${this.pageNumber}`
-					});
-				})
-				.catch((response: any) => {
-					this.destroyRenderTask();
-					this.$emit('thumbnail-errored', {
-						response,
-						page: this.page,
-						text: `Failed to render thumbnail ${this.pageNumber}`
-					});
-				});
+			this.renderTask.promise
+				.then(
+					// onResolve
+					() => {
+						this.src = canvas.toDataURL();
+						// Zeroing the width and height causes Firefox to release graphics
+						// resources immediately, which can greatly reduce memory consumption.
+						canvas.width = 0;
+						canvas.height = 0;
+
+						this.$emit('thumbnail-rendered', {
+							page: this.page,
+							text: `Rendered thumbnail ${this.pageNumber}`
+						});
+					},
+					// onReject
+					(reason) => {
+						this.destroyRenderTask();
+
+						this.$emit('thumbnail-errored', {
+							reason,
+							page: this.page,
+							text: `Failed to render thumbnail ${this.pageNumber}`
+						});
+					}
+				);
 		}
 
 		destroyPage(page: PDFPageProxy) {

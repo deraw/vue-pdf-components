@@ -43,7 +43,7 @@
 		}
 
 		@Watch('pdf')
-		pdfUpdated(pdf: any, oldPdf: any) {
+		pdfUpdated(pdf: PDFDocumentProxy, oldPdf: PDFDocumentProxy) {
 			if (!pdf) {
 				return;
 			}

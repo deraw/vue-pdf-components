@@ -18,7 +18,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFPageProxy, PDFRenderTask, PDFLoadingTask, PDFPageViewport } from 'pdfjs-dist';
+	import { PDFPageProxy, PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
 
 	import pdfVisible from '../directives/visible';
 	import { PIXEL_RATIO } from '../utils/const';
@@ -98,28 +98,36 @@
 			// PDFPageProxy#render
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			this.renderTask = this.page.render(renderContext);
-			(this.renderTask as any)
-				.then(() => {
-					this.$emit('page-rendered', {
-						page: this.page,
-						text: `Rendered page ${this.pageNumber}`
-					});
+			this.renderTask.promise
+				.then(
+					// onResolve
+					() => {
+						this.$emit('page-rendered', {
+							page: this.page,
+							text: `Rendered page ${this.pageNumber}`
+						});
 
-					this.page.getTextContent().then((text: any) => {
-						this.renderTextLayer(text);
-					});
-				})
-				.catch((response: any) => {
-					this.destroyRenderTask();
-					this.$emit('page-errored', {
-						response,
-						page: this.page,
-						text: `Failed to render page ${this.pageNumber}`
-					});
-				});
+						this.page.getTextContent()
+							.then(
+								// onResolve
+								(text) => {
+									this.renderTextLayer(text);
+								}
+							);
+					},
+					// onReject
+					(reason) => {
+						this.destroyRenderTask();
+						this.$emit('page-errored', {
+							reason,
+							page: this.page,
+							text: `Failed to render page ${this.pageNumber}`
+						});
+					}
+				);
 		}
 
-		renderTextLayer(textContent: any) {
+		renderTextLayer(textContent: TextContent) {
 			return import(
 				/* webpackChunkName: 'pdfjs-dist' */
 				'pdfjs-dist'

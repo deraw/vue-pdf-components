@@ -70,7 +70,7 @@
 		@Watch('scrollTop')
 		@Watch('clientHeight')
 		updateElementBounds() {
-			const { offsetTop, offsetHeight } = this.$el as any;
+			const { offsetTop, offsetHeight } = this.$el as HTMLElement;
 			this.elementTop = offsetTop;
 			this.elementHeight = offsetHeight;
 		}
