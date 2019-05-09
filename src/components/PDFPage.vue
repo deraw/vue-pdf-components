@@ -5,7 +5,10 @@
 	>
 		<canvas
 			ref="canvas"
-			v-pdf-visible.once="renderPage"
+			v-observe-visibility="{
+				callback: renderPage,
+				once: true
+			}"
 			v-bind="canvasAttrs"
 		/>
 
@@ -20,14 +23,9 @@
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	import { PDFPageProxy, PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
 
-	import pdfVisible from '../directives/visible';
 	import { PIXEL_RATIO } from '../utils/const';
 
-	@Component({
-		directives: {
-			pdfVisible
-		}
-	})
+	@Component
 	export default class PDFPage extends Vue {
 		renderTask?: PDFRenderTask;
 		viewport: any = null;

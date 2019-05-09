@@ -30,7 +30,7 @@
 		</ScrollingPage>
 
 		<div
-			v-pdf-visible="fetchPages"
+			v-observe-visibility="fetchPages"
 			class="pdf-observer"
 		/>
 	</div>
@@ -42,7 +42,6 @@
 
 	import ScrollingPage from './ScrollingPage.vue';
 
-	import pdfVisible from '../directives/visible';
 	import pdfScroll from '../directives/scroll';
 
 	@Component({
@@ -50,7 +49,6 @@
 			ScrollingPage
 		},
 		directives: {
-			pdfVisible,
 			pdfScroll
 		}
 	})

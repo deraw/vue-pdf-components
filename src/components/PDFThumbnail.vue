@@ -1,6 +1,9 @@
 <template>
 	<div
-		v-pdf-visible.once="drawPage"
+		v-observe-visibility="{
+			callback: drawPage,
+			once: true
+		}"
 		:class="{
 			focused: isPageFocused
 		}"
@@ -31,13 +34,7 @@
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	import { PDFPageProxy, PDFRenderTask } from 'pdfjs-dist';
 
-	import pdfVisible from '../directives/visible';
-
-	@Component({
-		directives: {
-			pdfVisible
-		}
-	})
+	@Component
 	export default class PDFThumbnail extends Vue {
 		src: string | null = null;
 		renderTask?: PDFRenderTask;
