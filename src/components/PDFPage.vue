@@ -21,7 +21,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
+	import pdfjs, { PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
 	import { Page } from '../types';
 
 	import { PIXEL_RATIO } from '../utils/const';
@@ -130,16 +130,11 @@
 		}
 
 		renderTextLayer(textContent: TextContent) {
-			return import(
-				/* webpackChunkName: 'pdfjs-dist' */
-				'pdfjs-dist'
-			).then((pdfjs: any) => {
-				pdfjs.renderTextLayer({
-					textContent: textContent,
-					container: this.$refs.textLayer,
-					viewport: this.page.getViewport(this.scale),
-					textDivs: []
-				});
+			(pdfjs as any).renderTextLayer({
+				textContent: textContent,
+				container: this.$refs.textLayer,
+				viewport: this.page.getViewport(this.scale),
+				textDivs: []
 			});
 		}
 

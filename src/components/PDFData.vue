@@ -14,7 +14,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
+	import pdfjs, { PDFLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
 	import { Page } from '../types';
 
 	import range from '../utils/range';
@@ -31,16 +31,20 @@
 
 		@Watch('url', { immediate: true })
 		urlUpdated(url : string) {
-			this.getDocument(url)
-				.then((pdf) => {
-					this.pdf = pdf as unknown as PDFDocumentProxy;
-				})
-				.catch(response => {
-					this.$emit('document:errored', {
-						text: 'Failed to retrieve PDF',
-						response
-					});
-				});
+			pdfjs.getDocument(url).promise
+				.then(
+					// onReslove
+					(pdf) => {
+						this.pdf = pdf;
+					},
+					// onReject
+					(reason) => {
+						this.$emit('document-errored', {
+							text: 'Failed to retrieve PDF',
+							reason
+						});
+					}
+				);
 		}
 
 		@Watch('pdf')
@@ -49,29 +53,20 @@
 				return;
 			}
 
-			// if (oldPdf) {
-			// 	Object.assign(this, this.getDefaults());
-			// }
+			if (oldPdf) {
+				Object.assign(this, this.getDefaults());
+			}
 
 			this.$emit('page-count', this.pageCount);
 			this.fetchPages();
 		}
 
-		getDocument(url: string) {
-			// Using import statement in this way allows Webpack
-			// to treat pdf.js as an async dependency so we can
-			// avoid adding it to one of the main bundles
-			return import(
-				/* webpackChunkName: 'pdfjs-dist' */
-				'pdfjs-dist'
-			)
-			.then((pdfjs) => pdfjs.getDocument(url));
-		}
 		getPages(pdf: PDFDocumentProxy, first: number, last: number) {
 			const allPages: any = range(first, last).map(number => pdf.getPage(number));
 
 			return Promise.all(allPages);
 		}
+
 		fetchPages(currentPage = 0) {
 			// Don't try to fetch without pdf
 			if (!this.pdf) {
@@ -120,21 +115,11 @@
 			};
 		}
 
-		onPageRendered({ text, page }: any) {
-			// console.log(text, page);
-		}
-
-		onPageErrored({ text, response, page }: any) {
-			// console.log('Error!', text, response, page);
-		}
-
 		get pageCount() {
 			return this.pdf ? this.pdf.numPages : 0;
 		}
 
 		created() {
-			this.$on('page-rendered', this.onPageRendered);
-			this.$on('page-errored', this.onPageErrored);
 			this.$on('pages-fetch', this.fetchPages);
 		}
 	}
