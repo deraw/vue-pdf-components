@@ -32,14 +32,15 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFPageProxy, PDFRenderTask } from 'pdfjs-dist';
+	import { PDFRenderTask } from 'pdfjs-dist';
+	import { Page } from '../types';
 
 	@Component
 	export default class PDFThumbnail extends Vue {
 		src: string | null = null;
 		renderTask?: PDFRenderTask;
 
-		@Prop(Object) readonly page!: PDFPageProxy;
+		@Prop(Object) readonly page!: Page;
 		@Prop(Number) readonly scale!: number;
 		@Prop(Boolean) readonly isPageFocused!: boolean;
 		@Prop({ type: String, default: 'Loading' }) readonly loadingLabel!: string;
@@ -104,11 +105,11 @@
 				);
 		}
 
-		destroyPage(page: PDFPageProxy) {
+		destroyPage(page: Page) {
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			if (page) {
-				// page.destroy();
+				page._destroy();
 			}
 
 			this.destroyRenderTask();
@@ -132,7 +133,7 @@
 		}
 
 		@Watch('page')
-		pageUpdated(newPage: PDFPageProxy, oldPage: PDFPageProxy) {
+		pageUpdated(newPage: Page, oldPage: Page) {
 			this.destroyPage(oldPage);
 		}
 

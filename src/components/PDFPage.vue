@@ -21,7 +21,8 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFPageProxy, PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
+	import { PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
+	import { Page } from '../types';
 
 	import { PIXEL_RATIO } from '../utils/const';
 
@@ -30,7 +31,7 @@
 		renderTask?: PDFRenderTask;
 		viewport: any = null;
 
-		@Prop(Object) readonly page!: PDFPageProxy;
+		@Prop(Object) readonly page!: Page;
 		@Prop(Number) readonly scale!: number;
 		@Prop(Number) readonly optimalScale!: number;
 		@Prop({ type: Boolean, default: false }) readonly isPageFocused!: boolean;
@@ -91,7 +92,10 @@
 				return;
 			}
 
-			const renderContext = { canvasContext, viewport: this.page.getViewport(this.scale * 2) };
+			const renderContext = {
+				canvasContext,
+				viewport: this.page.getViewport(this.scale * 2)
+			};
 
 			// PDFPageProxy#render
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
@@ -144,11 +148,11 @@
 			this.$parent.$emit('update-visibility');
 		}
 
-		destroyPage(page: PDFPageProxy) {
+		destroyPage(page: Page) {
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			if (page) {
-				// page.destroy();
+				page._destroy();
 			}
 
 			this.destroyRenderTask();
@@ -166,7 +170,7 @@
 		}
 
 		@Watch('page')
-		pageUpdated(newPage: PDFPageProxy, oldPage: PDFPageProxy) {
+		pageUpdated(newPage: Page, oldPage: Page) {
 			this.destroyPage(oldPage);
 		}
 

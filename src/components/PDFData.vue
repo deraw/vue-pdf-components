@@ -14,14 +14,15 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+	import { PDFLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
+	import { Page } from '../types';
 
 	import range from '../utils/range';
 
 	@Component
 	export default class PDFData extends Vue {
 		pdf: PDFDocumentProxy | null = null;
-		pages: PDFPageProxy[] = [];
+		pages: Page[] = [];
 		cursor = 0;
 
 		readonly BUFFER_LENGTH = 10;
