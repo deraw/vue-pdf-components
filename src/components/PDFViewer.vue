@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue } from 'vue-property-decorator';
+	import { Component, Vue, Prop } from 'vue-property-decorator';
 
 	import PDFDocument from './PDFDocument.vue';
 	import PDFPreview from './PDFPreview.vue';
@@ -53,14 +53,14 @@
 		}
 	})
 	export default class PDFViewer extends Vue {
-		url = '/pdf/demo4.pdf';
-
 		scale = 0;
 		optimalScale = 0;
-		fit = 'auto';
 		currentPage = 0;
 		pageCount = 0;
-		isPreviewEnabled = true;
+
+		@Prop() readonly url!: string;
+		@Prop({ type: String, default: 'auto' }) readonly fit!: string;
+		@Prop({ default: false }) readonly isPreviewEnabled!: boolean;
 
 		floor(value: number, precision: number) {
 			const multiplier = Math.pow(10, precision || 0);

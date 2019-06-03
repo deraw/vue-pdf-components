@@ -1,6 +1,9 @@
 <template>
 	<main class="main">
-		<PDFViewer />
+		<PDFViewer
+			url="/pdf/demo3.pdf"
+			:is-preview-enabled="true"
+		/>
 	</main>
 </template>
 
