@@ -218,11 +218,11 @@
 		}
 
 		::selection {
-			background: rgba(179, 212, 252, .3);
+			background: rgba(179, 212, 252, .3) !important;
 		}
 
 		::-moz-selection {
-			background: rgba(0, 0, 255, .3);
+			background: rgba(0, 0, 255, .3) !important;
 		}
 	}
 </style>

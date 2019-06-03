@@ -7,12 +7,6 @@ module.exports = {
 	// No source map, accelerates the dev server
 	// and we don't need them because we're publishing the source
 	productionSourceMap: false,
-	css: {
-		// Extract CSS to separate file for SSR
-		// (in SSR mode without a separate file, an error is thrown
-		// because the styles are appended to <head>)
-		extract: true
-	},
 	configureWebpack: {
 		entry,
 		output: {
@@ -35,8 +29,7 @@ module.exports = {
 						root: 'Vue'
 					}
 				},
-				/^pdfjs-dist/,
-				/^vue-class-component/
+				/^pdfjs-dist/
 			]
 			: []
 	},
