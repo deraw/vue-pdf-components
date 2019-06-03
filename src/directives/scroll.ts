@@ -2,12 +2,13 @@ import { DirectiveOptions } from 'vue';
 
 import throttle from '../utils/throttle';
 
-// Scroll directive
-// Provide callback when the window
-// or a specifically defined element are scrolled
+/** Scroll directive
+ * Provide callback when the window
+ * or a specifically defined element are scrolled
+ */
 const scrollDirective: DirectiveOptions = {
 	inserted(el, binding) {
-		// v-pdf-scroll="callback"
+		/** v-pdf-scroll="callback" */
 		const callback = binding.value;
 
 		// Immediate modifier
