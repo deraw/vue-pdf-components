@@ -218,10 +218,12 @@
 		}
 
 		::selection {
+			color: transparent !important;
 			background: rgba(179, 212, 252, .3) !important;
 		}
 
 		::-moz-selection {
+			color: transparent !important;
 			background: rgba(0, 0, 255, .3) !important;
 		}
 	}
