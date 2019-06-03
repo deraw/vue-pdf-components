@@ -7,6 +7,9 @@ module.exports = {
 	// No source map, accelerates the dev server
 	// and we don't need them because we're publishing the source
 	productionSourceMap: false,
+	css: {
+		extract: false
+	},
 	configureWebpack: {
 		entry,
 		output: {
