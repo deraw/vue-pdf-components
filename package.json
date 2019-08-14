@@ -29,7 +29,7 @@
 		"@types/jest": "^23.1.4",
 		"@types/pdfjs-dist": "^2.0.0",
 		"@typescript-eslint/eslint-plugin": "^1.7.0",
-		"@typescript-eslint/parser": "^1.7.0",
+		"@typescript-eslint/parser": "^2.0.0",
 		"@vue/cli-plugin-babel": "^3.6.0",
 		"@vue/cli-plugin-eslint": "^3.3.0",
 		"@vue/cli-plugin-typescript": "^3.3.0",
