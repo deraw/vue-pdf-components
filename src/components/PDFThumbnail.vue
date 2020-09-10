@@ -31,19 +31,51 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import { PDFPageViewport, PDFRenderTask } from 'pdfjs-dist';
 	import { Page } from '../types';
 
-	@Component
-	export default class PDFThumbnail extends Vue {
+	const Props = Vue.extend({
+		props: {
+			page: {
+				type: Object as PropType<Page>,
+				required: true
+			},
+			scale: {
+				type: Number,
+				required: true
+			},
+			isPageFocused: {
+				type: Boolean,
+				default: false
+			},
+			loadingLabel: {
+				type: String,
+				default: 'Loading'
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<PDFThumbnail>({
+		watch: {
+			src() {
+				this.updateVisibility();
+			},
+			scale() {
+				this.updateVisibility();
+			},
+			page(newPage: Page, oldPage: Page) {
+				this.destroyPage(oldPage);
+			}
+		}
+	})
+	export default class PDFThumbnail extends MixinsDeclaration {
 		src: string | null = null;
 		renderTask?: PDFRenderTask;
-
-		@Prop(Object) readonly page!: Page;
-		@Prop(Number) readonly scale!: number;
-		@Prop(Boolean) readonly isPageFocused!: boolean;
-		@Prop({ type: String, default: 'Loading' }) readonly loadingLabel!: string;
 
 		get viewport(): PDFPageViewport {
 			return this.page.getViewport({
@@ -111,7 +143,7 @@
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			if (page) {
-				page._destroy();
+				page.destroy();
 			}
 
 			this.destroyRenderTask();
@@ -128,19 +160,8 @@
 			this.renderTask = undefined;
 		}
 
-		@Watch('src')
-		@Watch('scale')
 		updateVisibility(): void {
 			this.$parent.$emit('update-visibility');
-		}
-
-		@Watch('page')
-		pageUpdated(newPage: Page, oldPage: Page): void {
-			this.destroyPage(oldPage);
-		}
-
-		mounted() {
-			// console.log(`Thumbnail ${this.pageNumber} mounted`);
 		}
 
 		beforeDestroy(): void {

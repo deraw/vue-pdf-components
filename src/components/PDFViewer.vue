@@ -34,7 +34,8 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop } from 'vue-property-decorator';
+	import Vue from 'vue';
+	import Component, { mixins } from 'vue-class-component';
 
 	import PDFDocument from './PDFDocument.vue';
 	import PDFPreview from './PDFPreview.vue';
@@ -45,6 +46,25 @@
 		isOptimal?: boolean;
 	}
 
+	const Props = Vue.extend({
+		props: {
+			url: {
+				type: String,
+				required: true
+			},
+			fit: {
+				type: String,
+				default: 'auto'
+			},
+			isPreviewEnabled: {
+				type: Boolean,
+				default: false
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
 	@Component({
 		components: {
 			PDFDocument,
@@ -52,15 +72,11 @@
 			PDFData
 		}
 	})
-	export default class PDFViewer extends Vue {
+	export default class PDFViewer extends MixinsDeclaration {
 		scale = 0;
 		optimalScale = 0;
 		currentPage = 0;
 		pageCount = 0;
-
-		@Prop() readonly url!: string;
-		@Prop({ type: String, default: 'auto' }) readonly fit!: string;
-		@Prop({ default: false }) readonly isPreviewEnabled!: boolean;
 
 		floor(value: number, precision: number): number {
 			const multiplier = Math.pow(10, precision || 0);

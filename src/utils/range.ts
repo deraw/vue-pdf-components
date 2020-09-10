@@ -1,4 +1,5 @@
-/** Create range array
+/**
+ * Create range array
  * eg. range(3) => [0, 1, 2]
  *
  * @param {Number} start Range start

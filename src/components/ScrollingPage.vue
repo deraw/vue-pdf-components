@@ -10,19 +10,58 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import { PDFPageProxy } from 'pdfjs-dist';
 
-	@Component
-	export default class ScrollingPage extends Vue {
+	const Props = Vue.extend({
+		props: {
+			page: {
+				type: Object as PropType<PDFPageProxy>,
+				required: true
+			},
+			focusedPage: {
+				type: Number,
+				default: undefined
+			},
+			scrollTop: {
+				type: Number,
+				default: 0
+			},
+			clientHeight: {
+				type: Number,
+				default: 0
+			},
+			enablePageJump: {
+				type: Boolean,
+				default: false
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<ScrollingPage>({
+		watch: {
+			scrollTop() {
+				this.updateElementBounds();
+			},
+			clientHeight() {
+				this.updateElementBounds();
+			},
+			isPageFocused(): void {
+				if (!this.enablePageJump || this.isElementFocused || !this.isPageFocused) {
+					return;
+				}
+
+				this.$emit('page-jump', this.elementTop);
+			}
+		}
+	})
+	export default class ScrollingPage extends MixinsDeclaration {
 		elementTop = 0;
 		elementHeight = 0;
-
-		@Prop(Object) readonly page!: PDFPageProxy;
-		@Prop({ type: Number, default: undefined }) readonly focusedPage!: number;
-		@Prop({ type: Number, default: 0 }) readonly scrollTop!: number;
-		@Prop({ type: Number, default: 0 }) readonly clientHeight!: number;
-		@Prop({ type: Boolean, default: false }) readonly enablePageJump!: number;
 
 		get isPageFocused(): boolean {
 			return this.page.pageNumber === this.focusedPage;
@@ -58,17 +97,6 @@
 			return this.scrollTop + this.clientHeight;
 		}
 
-		@Watch('isPageFocused')
-		jumpToPage(): void {
-			if (!this.enablePageJump || this.isElementFocused || !this.isPageFocused) {
-				return;
-			}
-
-			this.$emit('page-jump', this.elementTop);
-		}
-
-		@Watch('scrollTop')
-		@Watch('clientHeight')
 		updateElementBounds(): void {
 			const { offsetTop, offsetHeight } = this.$el as HTMLElement;
 			this.elementTop = offsetTop;

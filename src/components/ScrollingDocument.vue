@@ -37,30 +37,79 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import { PDFPageProxy } from 'pdfjs-dist';
 
 	import ScrollingPage from './ScrollingPage.vue';
 
 	import { scrollDirective } from '../directives/scroll';
 
-	@Component({
+	const Props = Vue.extend({
+		props: {
+			pages: {
+				type: Array as PropType<PDFPageProxy[]>,
+				required: true
+			},
+			enablePageJump: {
+				type: Boolean,
+				default: false
+			},
+			isPreviewEnabled: {
+				type: Boolean,
+				default: false
+			},
+			currentPage: {
+				type: Number,
+				default: 1
+			},
+			isParentVisible: {
+				type: Boolean,
+				default: true
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<ScrollingDocument>({
 		components: {
 			ScrollingPage
 		},
 		directives: {
 			pdfScroll: scrollDirective
+		},
+		watch: {
+			isParentVisible(): void {
+				const { scrollTop, clientHeight } = this.$el;
+
+				this.scrollTop = scrollTop;
+				this.clientHeight = clientHeight;
+			},
+			pagesLength(count: number, oldCount: number): void {
+				if (oldCount === 0) {
+					this.$emit('pages-reset');
+				}
+
+				// Set focusedPage after new pages are mounted
+				this.$nextTick(() => {
+					this.focusedPage = this.currentPage;
+				});
+			},
+			currentPage(currentPage: number): void {
+				if (currentPage > this.pages.length) {
+					this.fetchPages(currentPage);
+				} else {
+					this.focusedPage = currentPage;
+				}
+			}
 		}
 	})
-	export default class ScrollingDocument extends Vue {
+	export default class ScrollingDocument extends MixinsDeclaration {
 		focusedPage = 0;
 		scrollTop = 0;
 		clientHeight = 0;
-
-		@Prop([Array]) readonly pages!: PDFPageProxy[];
-		@Prop({ type: Boolean, default: false }) readonly enablePageJump!: boolean;
-		@Prop({ type: Number, default: 1 }) readonly currentPage!: number;
-		@Prop({ type: Boolean, default: true }) readonly isParentVisible!: boolean;
 
 		get pagesLength(): number {
 			return this.pages.length;
@@ -72,34 +121,6 @@
 
 		onPageJump(scrollTop: number): void {
 			this.$emit('page-jump', scrollTop);
-		}
-
-		@Watch('isParentVisible')
-		updateScrollBounds(): void {
-			const { scrollTop, clientHeight } = this.$el;
-			this.scrollTop = scrollTop;
-			this.clientHeight = clientHeight;
-		}
-
-		@Watch('pagesLength')
-		pagesLengthUpdated(count: number, oldCount: number): void {
-			if (oldCount === 0) {
-				this.$emit('pages-reset');
-			}
-
-			// Set focusedPage after new pages are mounted
-			this.$nextTick(() => {
-				this.focusedPage = this.currentPage;
-			});
-		}
-
-		@Watch('currentPage')
-		currentPageUpdated(currentPage: number): void {
-			if (currentPage > this.pages.length) {
-				this.fetchPages(currentPage);
-			} else {
-				this.focusedPage = currentPage;
-			}
 		}
 	}
 </script>

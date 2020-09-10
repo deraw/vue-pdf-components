@@ -15,8 +15,8 @@
 	>
 		<PDFThumbnail
 			v-bind="{
-				scale,
 				page,
+				scale,
 				isPageFocused
 			}"
 			@thumbnail-rendered="onThumbnailRendered"
@@ -27,11 +27,40 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import { PDFPageProxy } from 'pdfjs-dist';
 
 	import ScrollingDocument from './ScrollingDocument.vue';
 	import PDFThumbnail from './PDFThumbnail.vue';
+
+	const Props = Vue.extend({
+		props: {
+			pages: {
+				type: Array as PropType<PDFPageProxy[]>,
+				required: true
+			},
+			pageCount: {
+				type: Number,
+				default: 0
+			},
+			scale: {
+				type: Number,
+				default: 1.0
+			},
+			currentPage: {
+				type: Number,
+				default: 1
+			},
+			isPreviewEnabled: {
+				type: Boolean,
+				default: false
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
 
 	@Component({
 		components: {
@@ -39,13 +68,7 @@
 			PDFThumbnail
 		}
 	})
-	export default class PDFPreview extends Vue {
-		@Prop() readonly pages!: PDFPageProxy[];
-		@Prop({ type: Number, default: 0 }) readonly pageCount!: number;
-		@Prop({ type: Number, default: 1.0 }) readonly scale!: number;
-		@Prop({ type: Number, default: 1 }) readonly currentPage!: number;
-		@Prop({ type: Boolean, default: false }) readonly isPreviewEnabled!: boolean;
-
+	export default class PDFPreview extends MixinsDeclaration {
 		onPagesFetch(currentPage: number): void {
 			this.$parent.$emit('pages-fetch', currentPage);
 		}
