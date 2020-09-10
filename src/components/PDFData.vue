@@ -13,8 +13,11 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import pdfjs, { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+
 	import { Page } from '../types';
 
 	import range from '../utils/range';
@@ -22,24 +25,54 @@
 	// @see https://github.com/wojtekmaj/react-pdf/issues/321#issuecomment-451291757
 	pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-	@Component
-	export default class PDFData extends Vue {
+	const Props = Vue.extend({
+		props: {
+			url: {
+				type: String,
+				required: true
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<PDFData>({
+		watch: {
+			url: {
+				handler(url: string) {
+					this.urlUpdated(url);
+				},
+				immediate: true
+			},
+			pdf(pdf: PDFDocumentProxy, oldPdf: PDFDocumentProxy) {
+				if (!pdf) {
+					return;
+				}
+
+				if (oldPdf) {
+					this.pages = [];
+					this.cursor = 0;
+				}
+
+				this.$emit('page-count', this.pageCount);
+				this.fetchPages();
+			}
+		}
+	})
+	export default class PDFData extends MixinsDeclaration {
 		pdf: PDFDocumentProxy | null = null;
 		pages: Page[] = [];
 		cursor = 0;
 
 		readonly BUFFER_LENGTH = 10;
 
-		@Prop(String) readonly url!: string;
-
-		@Watch('url', { immediate: true })
 		urlUpdated(url: string): void {
-			pdfjs.getDocument(url).promise
+			pdfjs
+				.getDocument(url)
+				.promise
 				.then(
 					// onReslove
-					(pdf) => {
-						this.pdf = pdf;
-					},
+					(pdf) => this.pdf = pdf,
 					// onReject
 					(reason) => {
 						this.$emit('document-errored', {
@@ -48,21 +81,6 @@
 						});
 					}
 				);
-		}
-
-		@Watch('pdf')
-		pdfUpdated(pdf: PDFDocumentProxy, oldPdf: PDFDocumentProxy): void {
-			if (!pdf) {
-				return;
-			}
-
-			if (oldPdf) {
-				this.pages = [];
-				this.cursor = 0;
-			}
-
-			this.$emit('page-count', this.pageCount);
-			this.fetchPages();
 		}
 
 		getPages(pdf: PDFDocumentProxy, first: number, last: number): Promise<PDFPageProxy[]> {

@@ -19,9 +19,9 @@
 	>
 		<PDFPage
 			v-bind="{
+				page,
 				scale,
 				optimalScale,
-				page,
 				isPageFocused,
 				isElementFocused
 			}"
@@ -33,7 +33,9 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import { PDFPageProxy, PDFPageViewport } from 'pdfjs-dist';
 
 	import { PIXEL_RATIO, VIEWPORT_RATIO } from '../utils/const';
@@ -41,24 +43,65 @@
 	import ScrollingDocument from './ScrollingDocument.vue';
 	import PDFPage from './PDFPage.vue';
 
-	@Component({
+	const Props = Vue.extend({
+		props: {
+			pages: {
+				type: Array as PropType<PDFPageProxy[]>,
+				required: true
+			},
+			pageCount: {
+				type: Number,
+				default: 0
+			},
+			scale: {
+				type: Number,
+				default: 1.0
+			},
+			optimalScale: {
+				type: Number,
+				required: true
+			},
+			fit: {
+				type: String,
+				required: true
+			},
+			currentPage: {
+				type: Number,
+				default: 1
+			},
+			isPreviewEnabled: {
+				type: Boolean,
+				default: false
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<PDFDocument>({
 		components: {
 			ScrollingDocument,
 			PDFPage
+		},
+		watch: {
+			pageCount() {
+				this.fitWidth();
+			},
+			isPreviewEnabled() {
+				this.fitWidth();
+			},
+			fit(fit: string) {
+				this.updateFit(fit);
+			}
 		}
 	})
-	export default class PDFDocument extends Vue {
-		@Prop() readonly pages!: PDFPageProxy[];
-		@Prop({ default: 0 }) readonly pageCount!: number;
-		@Prop({ default: 1.0 }) readonly scale!: number;
-		@Prop(Number) readonly optimalScale!: number;
-		@Prop(String) readonly fit!: string;
-		@Prop({ default: 1 }) readonly currentPage!: number;
-		@Prop({ default: false }) readonly isPreviewEnabled!: boolean;
-
+	export default class PDFDocument extends MixinsDeclaration {
 		get defaultViewport(): PDFPageViewport {
 			if (!this.pages.length) {
-				return { width: 0, height: 0 } as PDFPageViewport;
+				return {
+					width: 0,
+					height: 0
+				} as PDFPageViewport;
 			}
 
 			const [page] = this.pages;
@@ -74,31 +117,28 @@
 		}
 
 		pageWidthScale(): number {
-			const { defaultViewport, $el } = this;
-			if (!defaultViewport.width) {
+			if (!this.defaultViewport.width) {
 				return 0;
 			}
 
-			return ($el.clientWidth * PIXEL_RATIO) * .73 / defaultViewport.width;
+			return (this.$el.clientWidth * PIXEL_RATIO) * .73 / this.defaultViewport.width;
 		}
 
 		pageHeightScale(): number {
-			const { defaultViewport, $el } = this;
-			if (!defaultViewport.height) {
+			if (!this.defaultViewport.height) {
 				return 0;
 			}
 
-			return ($el.clientHeight * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.height;
+			return (this.$el.clientHeight * PIXEL_RATIO) * VIEWPORT_RATIO / this.defaultViewport.height;
 		}
 
 		// Determine an ideal scale using viewport of document's first page,
 		// the pixel ratio from the browser
 		// and a subjective scale factor based on the screen size.
-		@Watch('pageCount')
-		@Watch('isPreviewEnabled')
 		fitWidth(): void {
 			const scale = this.pageWidthScale();
-			this.updateScale(scale, { isOptimal: !this.optimalScale });
+
+			this.updateScale(scale, !this.optimalScale);
 		}
 
 		fitHeight(): void {
@@ -111,17 +151,21 @@
 			this.updateScale(scale);
 		}
 
-		updateScale(scale: number, { isOptimal = false } = {}): void {
+		updateScale(scale: number, isOptimal = false): void {
 			if (!scale) {
 				return;
 			}
 
-			this.$emit('scale-change', { scale, isOptimal });
+			this.$emit('scale-change', {
+				scale,
+				isOptimal
+			});
 		}
 
 		onPageJump(scrollTop: number): void {
 			this.$el.scrollTop = scrollTop; // triggers 'scroll' event
 		}
+
 		onPagesFetch(currentPage: number): void {
 			this.$parent.$emit('pages-fetch', currentPage);
 		}
@@ -138,7 +182,6 @@
 			this.$parent.$emit('page-errored', payload);
 		}
 
-		@Watch('fit')
 		updateFit(fit: string): void {
 			switch (fit) {
 				case 'width': {

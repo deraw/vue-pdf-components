@@ -20,7 +20,9 @@
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+	import Vue, { PropType } from 'vue';
+	import Component, { mixins } from 'vue-class-component';
+
 	import pdfjs, { PDFPageViewport, PDFRenderTask, TextContent } from 'pdfjs-dist';
 	import { Page } from '../types';
 
@@ -33,16 +35,51 @@
 		class: string;
 	}
 
-	@Component
-	export default class PDFPage extends Vue {
+	const Props = Vue.extend({
+		props: {
+			page: {
+				type: Object as PropType<Page>,
+				required: true
+			},
+			scale: {
+				type: Number,
+				required: true
+			},
+			optimalScale: {
+				type: Number,
+				required: true
+			},
+			isPageFocused: {
+				type: Boolean,
+				default: false
+			},
+			isElementFocused: {
+				type: Boolean,
+				default: false
+			}
+		}
+	});
+
+	const MixinsDeclaration = mixins(Props);
+
+	@Component<PDFPage>({
+		watch: {
+			scale() {
+				this.$parent.$emit('update-visibility');
+			},
+			page(newPage: Page, oldPage: Page) {
+				this.destroyPage(oldPage);
+			},
+			isElementFocused(isElementFocused: boolean) {
+				if (isElementFocused) {
+					this.focusPage();
+				}
+			}
+		}
+	})
+	export default class PDFPage extends MixinsDeclaration {
 		renderTask?: PDFRenderTask;
 		viewport = {} as PDFPageViewport;
-
-		@Prop(Object) readonly page!: Page;
-		@Prop(Number) readonly scale!: number;
-		@Prop(Number) readonly optimalScale!: number;
-		@Prop({ type: Boolean, default: false }) readonly isPageFocused!: boolean;
-		@Prop({ type: Boolean, default: false }) readonly isElementFocused!: boolean;
 
 		get actualSizeViewport(): PDFPageViewport {
 			return this.viewport.clone({
@@ -153,11 +190,6 @@
 			});
 		}
 
-		@Watch('scale')
-		updateVisibility(): void {
-			this.$parent.$emit('update-visibility');
-		}
-
 		destroyPage(page: Page): void {
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
@@ -177,18 +209,6 @@
 			// https://mozilla.github.io/pdf.js/api/draft/RenderTask.html
 			this.renderTask.cancel();
 			this.renderTask = undefined;
-		}
-
-		@Watch('page')
-		pageUpdated(newPage: Page, oldPage: Page): void {
-			this.destroyPage(oldPage);
-		}
-
-		@Watch('isElementFocused')
-		isElementFocusedUpdated(isElementFocused: boolean): void {
-			if (isElementFocused) {
-				this.focusPage();
-			}
 		}
 
 		created() {
@@ -233,11 +253,6 @@
 		::selection {
 			color: transparent !important;
 			background: rgba(179, 212, 252, .3) !important;
-		}
-
-		::-moz-selection {
-			color: transparent !important;
-			background: rgba(0, 0, 255, .3) !important;
 		}
 	}
 </style>
