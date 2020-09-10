@@ -4,7 +4,7 @@
  * @param {Function} callback The callback to execute
  * @param {Number} delay The throttle delay
  */
-export default function throttle(callback: () => void, delay: number) {
+export default function throttle(callback: () => void, delay: number): () => void {
 	let lastCall = 0;
 
 	return function() {
@@ -18,5 +18,5 @@ export default function throttle(callback: () => void, delay: number) {
 		lastCall = now;
 
 		return callback();
-	}
+	};
 }

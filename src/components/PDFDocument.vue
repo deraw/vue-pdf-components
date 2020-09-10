@@ -34,7 +34,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFPageProxy } from 'pdfjs-dist';
+	import { PDFPageProxy, PDFPageViewport } from 'pdfjs-dist';
 
 	import { PIXEL_RATIO, VIEWPORT_RATIO } from '../utils/const';
 
@@ -56,20 +56,24 @@
 		@Prop({ default: 1 }) readonly currentPage!: number;
 		@Prop({ default: false }) readonly isPreviewEnabled!: boolean;
 
-		get defaultViewport() {
+		get defaultViewport(): PDFPageViewport {
 			if (!this.pages.length) {
-				return { width: 0, height: 0 };
+				return { width: 0, height: 0 } as PDFPageViewport;
 			}
 
 			const [page] = this.pages;
-			return page.getViewport(1.0);
+
+			return page.getViewport({
+				scale: 1.0
+			});
 		}
-		get isPortrait() {
+
+		get isPortrait(): boolean {
 			const { width, height } = this.defaultViewport;
 			return width <= height;
 		}
 
-		pageWidthScale() {
+		pageWidthScale(): number {
 			const { defaultViewport, $el } = this;
 			if (!defaultViewport.width) {
 				return 0;
@@ -77,7 +81,8 @@
 
 			return ($el.clientWidth * PIXEL_RATIO) * .73 / defaultViewport.width;
 		}
-		pageHeightScale() {
+
+		pageHeightScale(): number {
 			const { defaultViewport, $el } = this;
 			if (!defaultViewport.height) {
 				return 0;
@@ -85,57 +90,67 @@
 
 			return ($el.clientHeight * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.height;
 		}
+
 		// Determine an ideal scale using viewport of document's first page,
 		// the pixel ratio from the browser
 		// and a subjective scale factor based on the screen size.
 		@Watch('pageCount')
 		@Watch('isPreviewEnabled')
-		fitWidth() {
+		fitWidth(): void {
 			const scale = this.pageWidthScale();
 			this.updateScale(scale, { isOptimal: !this.optimalScale });
 		}
-		fitHeight() {
+
+		fitHeight(): void {
 			const scale = this.isPortrait ? this.pageHeightScale() : this.pageWidthScale();
 			this.updateScale(scale);
 		}
-		fitAuto() {
+
+		fitAuto(): void {
 			const scale = Math.min(this.pageWidthScale(), this.pageHeightScale());
 			this.updateScale(scale);
 		}
-		updateScale(scale: number, { isOptimal = false } = {}) {
+
+		updateScale(scale: number, { isOptimal = false } = {}): void {
 			if (!scale) {
 				return;
 			}
 
 			this.$emit('scale-change', { scale, isOptimal });
 		}
-		onPageJump(scrollTop: number) {
+
+		onPageJump(scrollTop: number): void {
 			this.$el.scrollTop = scrollTop; // triggers 'scroll' event
 		}
-		onPagesFetch(currentPage: number) {
+		onPagesFetch(currentPage: number): void {
 			this.$parent.$emit('pages-fetch', currentPage);
 		}
-		onPageFocused(pageNumber: number) {
+
+		onPageFocused(pageNumber: number): void {
 			this.$parent.$emit('page-focus', pageNumber);
 		}
-		onPageRendered(payload: number) {
+
+		onPageRendered(payload: number): void {
 			this.$parent.$emit('page-rendered', payload);
 		}
-		onPageErrored(payload: number) {
+
+		onPageErrored(payload: number): void {
 			this.$parent.$emit('page-errored', payload);
 		}
 
 		@Watch('fit')
-		updateFit(fit: string) {
+		updateFit(fit: string): void {
 			switch (fit) {
 				case 'width': {
 					this.fitWidth();
 					break;
 				}
+
 				case 'auto': {
 					this.fitAuto();
 					break;
 				}
+
 				default: {
 					break;
 				}

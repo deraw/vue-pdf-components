@@ -42,14 +42,14 @@
 
 	import ScrollingPage from './ScrollingPage.vue';
 
-	import pdfScroll from '../directives/scroll';
+	import { scrollDirective } from '../directives/scroll';
 
 	@Component({
 		components: {
 			ScrollingPage
 		},
 		directives: {
-			pdfScroll
+			pdfScroll: scrollDirective
 		}
 	})
 	export default class ScrollingDocument extends Vue {
@@ -62,27 +62,27 @@
 		@Prop({ type: Number, default: 1 }) readonly currentPage!: number;
 		@Prop({ type: Boolean, default: true }) readonly isParentVisible!: boolean;
 
-		get pagesLength() {
+		get pagesLength(): number {
 			return this.pages.length;
 		}
 
-		fetchPages(currentPage: number) {
+		fetchPages(currentPage: number): void {
 			this.$emit('pages-fetch', currentPage);
 		}
 
-		onPageJump(scrollTop: number) {
+		onPageJump(scrollTop: number): void {
 			this.$emit('page-jump', scrollTop);
 		}
 
 		@Watch('isParentVisible')
-		updateScrollBounds() {
+		updateScrollBounds(): void {
 			const { scrollTop, clientHeight } = this.$el;
 			this.scrollTop = scrollTop;
 			this.clientHeight = clientHeight;
 		}
 
 		@Watch('pagesLength')
-		pagesLengthUpdated(count: number, oldCount: number) {
+		pagesLengthUpdated(count: number, oldCount: number): void {
 			if (oldCount === 0) {
 				this.$emit('pages-reset');
 			}
@@ -94,7 +94,7 @@
 		}
 
 		@Watch('currentPage')
-		currentPageUpdated(currentPage: number) {
+		currentPageUpdated(currentPage: number): void {
 			if (currentPage > this.pages.length) {
 				this.fetchPages(currentPage);
 			} else {

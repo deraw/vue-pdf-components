@@ -62,12 +62,12 @@
 		@Prop({ type: String, default: 'auto' }) readonly fit!: string;
 		@Prop({ default: false }) readonly isPreviewEnabled!: boolean;
 
-		floor(value: number, precision: number) {
+		floor(value: number, precision: number): number {
 			const multiplier = Math.pow(10, precision || 0);
 			return Math.floor(value * multiplier) / multiplier;
 		}
 
-		updateScale({ scale, isOptimal = false }: UpdateScaleParameters) {
+		updateScale({ scale, isOptimal = false }: UpdateScaleParameters): void {
 			const roundedScale = this.floor(scale, 2);
 
 			if (isOptimal) {
@@ -77,7 +77,7 @@
 			this.scale = roundedScale;
 		}
 
-		updateCurrentPage(pageNumber: number) {
+		updateCurrentPage(pageNumber: number): void {
 			this.currentPage = pageNumber;
 		}
 	}

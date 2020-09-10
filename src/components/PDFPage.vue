@@ -21,15 +21,22 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import pdfjs, { PDFRenderTask, PDFLoadingTask, PDFPageViewport, TextContent } from 'pdfjs-dist';
+	import pdfjs, { PDFPageViewport, PDFRenderTask, TextContent } from 'pdfjs-dist';
 	import { Page } from '../types';
 
 	import { PIXEL_RATIO } from '../utils/const';
 
+	interface CanvasAttrs {
+		width: number;
+		height: number;
+		style: string;
+		class: string;
+	}
+
 	@Component
 	export default class PDFPage extends Vue {
 		renderTask?: PDFRenderTask;
-		viewport: any = null;
+		viewport = {} as PDFPageViewport;
 
 		@Prop(Object) readonly page!: Page;
 		@Prop(Number) readonly scale!: number;
@@ -37,27 +44,31 @@
 		@Prop({ type: Boolean, default: false }) readonly isPageFocused!: boolean;
 		@Prop({ type: Boolean, default: false }) readonly isElementFocused!: boolean;
 
-		get actualSizeViewport() {
-			return this.viewport.clone({ scale: this.scale });
+		get actualSizeViewport(): PDFPageViewport {
+			return this.viewport.clone({
+				viewBox: null,
+				scale: this.scale,
+				rotation: 0,
+				offsetX: 0,
+				offsetY: 0,
+				dontFlip: true
+			});
 		}
 
-		get canvasStyle() {
+		get canvasStyle(): string {
 			const {
 				width: actualSizeWidth,
 				height: actualSizeHeight
 			} = this.actualSizeViewport;
 
-			const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
-			.map(dim => Math.ceil(dim / PIXEL_RATIO));
+			const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight].map(dim => Math.ceil(dim / PIXEL_RATIO));
 
 			return `width: ${pixelWidth}px; height: ${pixelHeight}px;`;
 		}
 
-		get canvasAttrs() {
+		get canvasAttrs(): CanvasAttrs {
 			let { width, height } = this.actualSizeViewport;
 			[width, height] = [width, height].map((dim) => Math.ceil(dim));
-
-			const style = this.canvasStyle;
 
 			return {
 				width: width * 2,
@@ -67,11 +78,11 @@
 			};
 		}
 
-		get pageNumber() {
+		get pageNumber(): number {
 			return this.page.pageNumber;
 		}
 
-		focusPage() {
+		focusPage(): void {
 			if (this.isPageFocused) {
 				return;
 			}
@@ -79,12 +90,11 @@
 			this.$emit('page-focus', this.pageNumber);
 		}
 
-		renderPage() {
+		renderPage(): void {
 			if (this.renderTask) {
 				return;
 			}
 
-			// const { viewport } = this;
 			const canvasEl = this.$refs.canvas as HTMLCanvasElement;
 			const canvasContext = canvasEl.getContext('2d');
 
@@ -94,7 +104,9 @@
 
 			const renderContext = {
 				canvasContext,
-				viewport: this.page.getViewport(this.scale * 2)
+				viewport: this.page.getViewport({
+					scale: this.scale * 2
+				})
 			};
 
 			// PDFPageProxy#render
@@ -129,21 +141,24 @@
 				);
 		}
 
-		renderTextLayer(textContent: TextContent) {
+		renderTextLayer(textContent: TextContent): void {
+			/* eslint-disable @typescript-eslint/no-explicit-any */
 			(pdfjs as any).renderTextLayer({
 				textContent: textContent,
 				container: this.$refs.textLayer,
-				viewport: this.page.getViewport(this.scale),
+				viewport: this.page.getViewport({
+					scale: this.scale
+				}),
 				textDivs: []
 			});
 		}
 
 		@Watch('scale')
-		updateVisibility() {
+		updateVisibility(): void {
 			this.$parent.$emit('update-visibility');
 		}
 
-		destroyPage(page: Page) {
+		destroyPage(page: Page): void {
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			if (page) {
@@ -153,7 +168,7 @@
 			this.destroyRenderTask();
 		}
 
-		destroyRenderTask() {
+		destroyRenderTask(): void {
 			if (!this.renderTask) {
 				return;
 			}
@@ -165,12 +180,12 @@
 		}
 
 		@Watch('page')
-		pageUpdated(newPage: Page, oldPage: Page) {
+		pageUpdated(newPage: Page, oldPage: Page): void {
 			this.destroyPage(oldPage);
 		}
 
 		@Watch('isElementFocused')
-		isElementFocusedUpdated(isElementFocused: boolean) {
+		isElementFocusedUpdated(isElementFocused: boolean): void {
 			if (isElementFocused) {
 				this.focusPage();
 			}
@@ -179,14 +194,12 @@
 		created() {
 			// PDFPageProxy#getViewport
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-			this.viewport = this.page.getViewport(this.optimalScale);
+			this.viewport = this.page.getViewport({
+				scale: this.optimalScale
+			});
 		}
 
-		mounted() {
-			// console.log(`Page ${this.pageNumber} mounted`);
-		}
-
-		beforeDestroy() {
+		beforeDestroy(): void {
 			this.destroyPage(this.page);
 		}
 	}
@@ -203,13 +216,13 @@
 
 	.pdf-text-layer {
 		position: absolute;
+		top: 0;
 		left: 0;
-		top: .15rem;
 		right: 0;
 		bottom: 0;
 		overflow: hidden;
 
-		div {
+		span {
 			color: transparent;
 			position: absolute;
 			white-space: pre;
