@@ -4,6 +4,6 @@
  * @param {Number} start Range start
  * @param {Number} end Range end
  */
-export default function range(start: number, end: number) {
+export default function range(start: number, end: number): number[] {
 	return Array.from(Array(end - start + 1), (_, i) => start + i);
 }

@@ -32,7 +32,7 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import { PDFRenderTask } from 'pdfjs-dist';
+	import { PDFPageViewport, PDFRenderTask } from 'pdfjs-dist';
 	import { Page } from '../types';
 
 	@Component
@@ -45,19 +45,21 @@
 		@Prop(Boolean) readonly isPageFocused!: boolean;
 		@Prop({ type: String, default: 'Loading' }) readonly loadingLabel!: string;
 
-		get viewport() {
-			return this.page.getViewport(1.0);
+		get viewport(): PDFPageViewport {
+			return this.page.getViewport({
+				scale: 1.0
+			});
 		}
 
-		get pageNumber() {
+		get pageNumber(): number {
 			return this.page.pageNumber;
 		}
 
-		focusPage() {
+		focusPage(): void {
 			this.$emit('page-focus', this.pageNumber);
 		}
 
-		drawPage() {
+		drawPage(): void {
 			if (this.renderTask) {
 				return;
 			}
@@ -105,7 +107,7 @@
 				);
 		}
 
-		destroyPage(page: Page) {
+		destroyPage(page: Page): void {
 			// PDFPageProxy#destroy
 			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
 			if (page) {
@@ -115,7 +117,7 @@
 			this.destroyRenderTask();
 		}
 
-		destroyRenderTask() {
+		destroyRenderTask(): void {
 			if (!this.renderTask) {
 				return;
 			}
@@ -128,12 +130,12 @@
 
 		@Watch('src')
 		@Watch('scale')
-		updateVisibility() {
+		updateVisibility(): void {
 			this.$parent.$emit('update-visibility');
 		}
 
 		@Watch('page')
-		pageUpdated(newPage: Page, oldPage: Page) {
+		pageUpdated(newPage: Page, oldPage: Page): void {
 			this.destroyPage(oldPage);
 		}
 
@@ -141,7 +143,7 @@
 			// console.log(`Thumbnail ${this.pageNumber} mounted`);
 		}
 
-		beforeDestroy() {
+		beforeDestroy(): void {
 			this.destroyPage(this.page);
 		}
 	}

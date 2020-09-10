@@ -24,11 +24,11 @@
 		@Prop({ type: Number, default: 0 }) readonly clientHeight!: number;
 		@Prop({ type: Boolean, default: false }) readonly enablePageJump!: number;
 
-		get isPageFocused() {
+		get isPageFocused(): boolean {
 			return this.page.pageNumber === this.focusedPage;
 		}
 
-		get isElementFocused() {
+		get isElementFocused(): boolean {
 			const {
 				elementTop,
 				bottom,
@@ -50,16 +50,16 @@
 			return elementTop < threshold && bottom >= threshold;
 		}
 
-		get bottom() {
+		get bottom(): number {
 			return this.elementTop + this.elementHeight;
 		}
 
-		get scrollBottom() {
+		get scrollBottom(): number {
 			return this.scrollTop + this.clientHeight;
 		}
 
 		@Watch('isPageFocused')
-		jumpToPage() {
+		jumpToPage(): void {
 			if (!this.enablePageJump || this.isElementFocused || !this.isPageFocused) {
 				return;
 			}
@@ -69,7 +69,7 @@
 
 		@Watch('scrollTop')
 		@Watch('clientHeight')
-		updateElementBounds() {
+		updateElementBounds(): void {
 			const { offsetTop, offsetHeight } = this.$el as HTMLElement;
 			this.elementTop = offsetTop;
 			this.elementHeight = offsetHeight;

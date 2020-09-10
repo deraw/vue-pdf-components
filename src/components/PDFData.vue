@@ -14,10 +14,13 @@
 
 <script lang="ts">
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-	import pdfjs, { PDFLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
+	import pdfjs, { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 	import { Page } from '../types';
 
 	import range from '../utils/range';
+
+	// @see https://github.com/wojtekmaj/react-pdf/issues/321#issuecomment-451291757
+	pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 	@Component
 	export default class PDFData extends Vue {
@@ -30,7 +33,7 @@
 		@Prop(String) readonly url!: string;
 
 		@Watch('url', { immediate: true })
-		urlUpdated(url : string) {
+		urlUpdated(url: string): void {
 			pdfjs.getDocument(url).promise
 				.then(
 					// onReslove
@@ -48,26 +51,27 @@
 		}
 
 		@Watch('pdf')
-		pdfUpdated(pdf: PDFDocumentProxy, oldPdf: PDFDocumentProxy) {
+		pdfUpdated(pdf: PDFDocumentProxy, oldPdf: PDFDocumentProxy): void {
 			if (!pdf) {
 				return;
 			}
 
 			if (oldPdf) {
-				Object.assign(this, this.getDefaults());
+				this.pages = [];
+				this.cursor = 0;
 			}
 
 			this.$emit('page-count', this.pageCount);
 			this.fetchPages();
 		}
 
-		getPages(pdf: PDFDocumentProxy, first: number, last: number) {
-			const allPages: any = range(first, last).map(number => pdf.getPage(number));
+		getPages(pdf: PDFDocumentProxy, first: number, last: number): Promise<PDFPageProxy[]> {
+			const allPages = range(first, last).map(number => pdf.getPage(number)) as unknown as Promise<PDFPageProxy>[];
 
 			return Promise.all(allPages);
 		}
 
-		fetchPages(currentPage = 0) {
+		fetchPages(currentPage = 0): void {
 			// Don't try to fetch without pdf
 			if (!this.pdf) {
 				return;
@@ -91,12 +95,11 @@
 			);
 
 			this.cursor = endPage;
-			// console.log(`Fetching pages ${startPage} to ${endPage}`);
 
 			this.getPages(this.pdf, startPage, endPage)
 				.then((pages) => {
 					const deleteCount = 0;
-					this.pages.splice(startIndex, deleteCount, ...pages as any);
+					this.pages.splice(startIndex, deleteCount, ...pages as Page[]);
 
 					return this.pages;
 				})
@@ -108,14 +111,7 @@
 				});
 		}
 
-		getDefaults() {
-			return {
-				pages: [],
-				cursor: 0
-			};
-		}
-
-		get pageCount() {
+		get pageCount(): number {
 			return this.pdf ? this.pdf.numPages : 0;
 		}
 
