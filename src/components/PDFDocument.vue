@@ -36,7 +36,7 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import { PDFPageProxy, PDFPageViewport } from 'pdfjs-dist';
+	import { Page, PDFPageViewport } from '@/types';
 
 	import { PIXEL_RATIO, VIEWPORT_RATIO } from '../utils/const';
 
@@ -46,7 +46,7 @@
 	const Props = Vue.extend({
 		props: {
 			pages: {
-				type: Array as PropType<PDFPageProxy[]>,
+				type: Array as PropType<Page[]>,
 				required: true
 			},
 			pageCount: {

@@ -13,12 +13,12 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import { PDFPageProxy } from 'pdfjs-dist';
+	import { Page } from '@/types';
 
 	const Props = Vue.extend({
 		props: {
 			page: {
-				type: Object as PropType<PDFPageProxy>,
+				type: Object as PropType<Page>,
 				required: true
 			},
 			focusedPage: {

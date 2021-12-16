@@ -40,7 +40,7 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import { PDFPageProxy } from 'pdfjs-dist';
+	import { Page } from '@/types';
 
 	import ScrollingPage from './ScrollingPage.vue';
 
@@ -49,7 +49,7 @@
 	const Props = Vue.extend({
 		props: {
 			pages: {
-				type: Array as PropType<PDFPageProxy[]>,
+				type: Array as PropType<Page[]>,
 				required: true
 			},
 			enablePageJump: {
@@ -82,10 +82,7 @@
 		},
 		watch: {
 			isParentVisible(): void {
-				const { scrollTop, clientHeight } = this.$el;
-
-				this.scrollTop = scrollTop;
-				this.clientHeight = clientHeight;
+				this.updateScrollBounds();
 			},
 			pagesLength(count: number, oldCount: number): void {
 				if (oldCount === 0) {
@@ -121,6 +118,12 @@
 
 		onPageJump(scrollTop: number): void {
 			this.$emit('page-jump', scrollTop);
+		}
+
+		updateScrollBounds(): void {
+			const { scrollTop, clientHeight } = this.$el;
+			this.scrollTop = scrollTop;
+			this.clientHeight = clientHeight;
 		}
 	}
 </script>

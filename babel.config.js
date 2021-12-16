@@ -1,11 +1,6 @@
 module.exports = {
+	// For dev environment
 	presets: [
-		[
-			'@vue/app',
-			{
-				// Do not include polyfills
-				useBuiltIns: false
-			}
-		]
+		'@vue/cli-plugin-babel/preset'
 	]
 };

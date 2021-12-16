@@ -30,7 +30,7 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import { PDFPageProxy } from 'pdfjs-dist';
+	import { Page } from '@/types';
 
 	import ScrollingDocument from './ScrollingDocument.vue';
 	import PDFThumbnail from './PDFThumbnail.vue';
@@ -38,7 +38,7 @@
 	const Props = Vue.extend({
 		props: {
 			pages: {
-				type: Array as PropType<PDFPageProxy[]>,
+				type: Array as PropType<Page[]>,
 				required: true
 			},
 			pageCount: {
@@ -77,7 +77,7 @@
 			this.$parent.$emit('page-focus', pageNumber);
 		}
 
-		onThumbnailRendered(payload: PDFPageProxy): void {
+		onThumbnailRendered(payload: Page): void {
 			this.$el.dispatchEvent(new Event('scroll'));
 			this.$parent.$emit('thumbnail-rendered', payload);
 		}

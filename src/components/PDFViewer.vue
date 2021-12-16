@@ -3,7 +3,7 @@
 		:url="url"
 		@page-focus="updateCurrentPage"
 	>
-		<template v-slot:preview="{ pages }">
+		<template #preview="{ pages }">
 			<PDFPreview
 				v-show="isPreviewEnabled"
 				v-bind="{
@@ -16,7 +16,7 @@
 			/>
 		</template>
 
-		<template v-slot:document="{ pages }">
+		<template #document="{ pages }">
 			<PDFDocument
 				v-bind="{
 					pages,

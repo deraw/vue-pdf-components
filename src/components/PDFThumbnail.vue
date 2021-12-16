@@ -34,8 +34,7 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import { PDFPageViewport, PDFRenderTask } from 'pdfjs-dist';
-	import { Page } from '../types';
+	import { Page, PDFPageViewport, PDFRenderTask } from '@/types';
 
 	const Props = Vue.extend({
 		props: {
@@ -67,9 +66,6 @@
 			},
 			scale() {
 				this.updateVisibility();
-			},
-			page(newPage: Page, oldPage: Page) {
-				this.destroyPage(oldPage);
 			}
 		}
 	})
@@ -139,16 +135,6 @@
 				);
 		}
 
-		destroyPage(page: Page): void {
-			// PDFPageProxy#destroy
-			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-			if (page) {
-				page.destroy();
-			}
-
-			this.destroyRenderTask();
-		}
-
 		destroyRenderTask(): void {
 			if (!this.renderTask) {
 				return;
@@ -165,7 +151,7 @@
 		}
 
 		beforeDestroy(): void {
-			this.destroyPage(this.page);
+			this.destroyRenderTask();
 		}
 	}
 </script>
