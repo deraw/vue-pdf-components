@@ -16,9 +16,9 @@
 	import Vue from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import pdfjs, { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+	import * as pdfjs from 'pdfjs-dist';
 
-	import { Page } from '../types';
+	import { Page, PDFDocumentProxy } from '@/types';
 
 	import range from '../utils/range';
 
@@ -83,8 +83,8 @@
 				);
 		}
 
-		getPages(pdf: PDFDocumentProxy, first: number, last: number): Promise<PDFPageProxy[]> {
-			const allPages = range(first, last).map(number => pdf.getPage(number)) as unknown as Promise<PDFPageProxy>[];
+		getPages(pdf: PDFDocumentProxy, first: number, last: number): Promise<Page[]> {
+			const allPages = range(first, last).map(number => pdf.getPage(number)) as unknown as Promise<Page>[];
 
 			return Promise.all(allPages);
 		}

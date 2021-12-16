@@ -23,8 +23,8 @@
 	import Vue, { PropType } from 'vue';
 	import Component, { mixins } from 'vue-class-component';
 
-	import pdfjs, { PDFPageViewport, PDFRenderTask, TextContent } from 'pdfjs-dist';
-	import { Page } from '../types';
+	import * as pdfjs from 'pdfjs-dist';
+	import { Page, PDFPageViewport, PDFRenderTask, TextContent } from '@/types';
 
 	import { PIXEL_RATIO } from '../utils/const';
 
@@ -67,9 +67,6 @@
 			scale() {
 				this.$parent.$emit('update-visibility');
 			},
-			page(newPage: Page, oldPage: Page) {
-				this.destroyPage(oldPage);
-			},
 			isElementFocused(isElementFocused: boolean) {
 				if (isElementFocused) {
 					this.focusPage();
@@ -83,7 +80,6 @@
 
 		get actualSizeViewport(): PDFPageViewport {
 			return this.viewport.clone({
-				viewBox: null,
 				scale: this.scale,
 				rotation: 0,
 				offsetX: 0,
@@ -190,16 +186,6 @@
 			});
 		}
 
-		destroyPage(page: Page): void {
-			// PDFPageProxy#destroy
-			// https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-			if (page) {
-				page._destroy();
-			}
-
-			this.destroyRenderTask();
-		}
-
 		destroyRenderTask(): void {
 			if (!this.renderTask) {
 				return;
@@ -220,7 +206,7 @@
 		}
 
 		beforeDestroy(): void {
-			this.destroyPage(this.page);
+			this.destroyRenderTask();
 		}
 	}
 </script>

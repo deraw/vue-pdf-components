@@ -1,7 +1,7 @@
 <template>
 	<main class="main">
 		<PDFViewer
-			url="/pdf/demo3.pdf"
+			url="/pdf/demo.pdf"
 			:is-preview-enabled="true"
 		/>
 	</main>
